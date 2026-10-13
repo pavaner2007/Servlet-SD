@@ -129,3 +129,13 @@ curl -X PUT "localhost:9200/library_catalog" \
      -H "Content-Type: application/json" \
      -d @elasticsearch/catalog_index_settings.json
 ```
+
+---
+
+## 5. Documentation & Testing Guides
+
+All detailed QA test suites and execution instructions are consolidated in the [`docs/`](docs/) directory:
+
+- [QA_TESTING_SCRIPT.md](docs/QA_TESTING_SCRIPT.md) — Phase 2: User Management Servlet & JDBC CRUD UI test instructions.
+- [PHASE3_QA_TESTING_GUIDE.md](docs/PHASE3_QA_TESTING_GUIDE.md) — Phase 3: Circulation REST APIs, Postman collection, and Optimistic Locking race-condition verification.
+- [PHASE4_QA_TESTING_GUIDE.md](docs/PHASE4_QA_TESTING_GUIDE.md) — Phase 4: Redis write-through caching, RabbitMQ event messaging, notification logs, and overdue reminder cron job.

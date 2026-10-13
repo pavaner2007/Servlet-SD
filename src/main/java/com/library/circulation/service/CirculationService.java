@@ -9,6 +9,10 @@ import com.library.model.LoanType;
 import com.library.model.Reservation;
 import com.library.model.ReservationStatus;
 
+import com.library.cache.RedisCacheService;
+import com.library.messaging.model.BookReturnedEvent;
+import com.library.messaging.publisher.MessagePublisher;
+
 import java.math.BigDecimal;
 import java.sql.*;
 import java.time.Instant;
@@ -17,17 +21,24 @@ import java.time.temporal.ChronoUnit;
 /**
  * Circulation Microservice: Manages checkouts, returns, and waitlist reservations.
  * Incorporates Optimistic Locking on physical copy versioning to guarantee concurrency control.
+ * Integrates Redis Write-Through Cache Invalidation and Event-Driven Message Publishing.
  */
 public class CirculationService {
 
     private final MembershipService membershipService;
+    private final RedisCacheService redisCacheService;
+    private final MessagePublisher messagePublisher;
 
     public CirculationService() {
         this.membershipService = new MembershipService();
+        this.redisCacheService = new RedisCacheService();
+        this.messagePublisher = MessagePublisher.getInstance();
     }
 
-    public CirculationService(MembershipService membershipService) {
+    public CirculationService(MembershipService membershipService, RedisCacheService redisCacheService, MessagePublisher messagePublisher) {
         this.membershipService = membershipService;
+        this.redisCacheService = redisCacheService;
+        this.messagePublisher = messagePublisher;
     }
 
     /**
@@ -273,6 +284,7 @@ public class CirculationService {
                 long copyId;
                 long bookId;
 
+                String resolvedBarcode = barcode;
                 try (PreparedStatement ps = conn.prepareStatement(findLoanSql)) {
                     if (loanId != null) {
                         ps.setLong(1, loanId);
@@ -287,6 +299,7 @@ public class CirculationService {
                         memberId = rs.getLong("member_id");
                         copyId = rs.getLong("copy_id");
                         bookId = rs.getLong("book_id");
+                        resolvedBarcode = rs.getString("barcode");
                     }
                 }
 
@@ -314,7 +327,25 @@ public class CirculationService {
                     ps.executeUpdate();
                 }
 
+                // Query updated available copy count for Redis write-through
+                int updatedAvailableCount = 1;
+                try (PreparedStatement ps = conn.prepareStatement("SELECT available_physical_copies FROM book_titles WHERE book_id = ?")) {
+                    ps.setLong(1, bookId);
+                    try (ResultSet rs = ps.executeQuery()) {
+                        if (rs.next()) {
+                            updatedAvailableCount = rs.getInt(1);
+                        }
+                    }
+                }
+
                 conn.commit();
+
+                // 1. REDIS WRITE-THROUGH INVALIDATION
+                redisCacheService.writeThroughInvalidationOnReturn(bookId, updatedAvailableCount);
+
+                // 2. EVENT-DRIVEN MESSAGE BROKER PUBLISHING
+                BookReturnedEvent event = new BookReturnedEvent(activeLoanId, bookId, copyId, resolvedBarcode);
+                messagePublisher.publishBookReturnedEvent(event);
 
                 Loan returnedLoan = new Loan();
                 returnedLoan.setLoanId(activeLoanId);

@@ -21,6 +21,7 @@ import java.util.Map;
 public class CatalogApiServlet extends HttpServlet {
 
     private final CatalogService catalogService = new CatalogService();
+    private final com.library.cache.RedisCacheService redisCacheService = new com.library.cache.RedisCacheService();
 
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
@@ -40,6 +41,25 @@ public class CatalogApiServlet extends HttpServlet {
             }
         } catch (NumberFormatException ignored) {}
 
+        // Construct unique cache key
+        String cacheKey = String.format("q=%s:genre=%s:cat=%s:avail=%s:p=%d:l=%d",
+                query != null ? query : "*",
+                genre != null ? genre : "*",
+                category != null ? category : "*",
+                onlyAvailable,
+                page,
+                limit);
+
+        // Check Redis Cache
+        String cachedJson = redisCacheService.getCachedSearchResults(cacheKey);
+        if (cachedJson != null) {
+            response.setStatus(HttpServletResponse.SC_OK);
+            response.setContentType("application/json;charset=UTF-8");
+            response.setHeader("X-Cache", "HIT");
+            response.getWriter().write(cachedJson);
+            return;
+        }
+
         try {
             List<BookTitle> books = catalogService.searchBooks(query, genre, category, onlyAvailable, page, limit);
 
@@ -49,7 +69,15 @@ public class CatalogApiServlet extends HttpServlet {
             result.put("count", books.size());
             result.put("books", books);
 
-            JsonHelper.sendSuccess(response, HttpServletResponse.SC_OK, result);
+            String jsonPayload = JsonHelper.getMapper().writeValueAsString(result);
+
+            // Populate Redis Cache
+            redisCacheService.setCachedSearchResults(cacheKey, jsonPayload);
+
+            response.setStatus(HttpServletResponse.SC_OK);
+            response.setContentType("application/json;charset=UTF-8");
+            response.setHeader("X-Cache", "MISS");
+            response.getWriter().write(jsonPayload);
 
         } catch (SQLException e) {
             JsonHelper.sendError(response, HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "DATABASE_ERROR", e.getMessage(), null);

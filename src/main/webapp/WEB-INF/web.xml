@@ -56,4 +56,13 @@
         <servlet-name>LoanReturnApiServlet</servlet-name>
         <url-pattern>/api/v1/loans/return</url-pattern>
     </servlet-mapping>
+
+    <servlet>
+        <servlet-name>AdminJobServlet</servlet-name>
+        <servlet-class>com.library.api.servlet.AdminJobServlet</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>AdminJobServlet</servlet-name>
+        <url-pattern>/api/v1/admin/jobs/trigger-overdue-reminders</url-pattern>
+    </servlet-mapping>
 </web-app>

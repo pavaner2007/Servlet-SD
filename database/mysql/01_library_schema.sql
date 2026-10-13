@@ -77,6 +77,7 @@ CREATE TABLE IF NOT EXISTS physical_copies (
     status              ENUM('AVAILABLE', 'LOANED', 'RESERVED', 'LOST') NOT NULL DEFAULT 'AVAILABLE',
     acquired_date       DATE NOT NULL,
     price               DECIMAL(10, 2),
+    version             INT NOT NULL DEFAULT 1,
     created_at          DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at          DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     INDEX idx_physical_copies_status (status),

@@ -19,4 +19,41 @@
         <servlet-name>UserServlet</servlet-name>
         <url-pattern>/UserServlet</url-pattern>
     </servlet-mapping>
+
+    <!-- REST API Endpoints -->
+    <servlet>
+        <servlet-name>CatalogApiServlet</servlet-name>
+        <servlet-class>com.library.api.servlet.CatalogApiServlet</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>CatalogApiServlet</servlet-name>
+        <url-pattern>/api/v1/catalog/search</url-pattern>
+    </servlet-mapping>
+
+    <servlet>
+        <servlet-name>ReservationApiServlet</servlet-name>
+        <servlet-class>com.library.api.servlet.ReservationApiServlet</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>ReservationApiServlet</servlet-name>
+        <url-pattern>/api/v1/reservations</url-pattern>
+    </servlet-mapping>
+
+    <servlet>
+        <servlet-name>LoanCheckoutApiServlet</servlet-name>
+        <servlet-class>com.library.api.servlet.LoanCheckoutApiServlet</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>LoanCheckoutApiServlet</servlet-name>
+        <url-pattern>/api/v1/loans/checkout</url-pattern>
+    </servlet-mapping>
+
+    <servlet>
+        <servlet-name>LoanReturnApiServlet</servlet-name>
+        <servlet-class>com.library.api.servlet.LoanReturnApiServlet</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>LoanReturnApiServlet</servlet-name>
+        <url-pattern>/api/v1/loans/return</url-pattern>
+    </servlet-mapping>
 </web-app>

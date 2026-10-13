@@ -88,6 +88,7 @@ CREATE TABLE physical_copies (
     status              copy_status_enum NOT NULL DEFAULT 'AVAILABLE',
     acquired_date       DATE NOT NULL DEFAULT CURRENT_DATE,
     price               NUMERIC(10, 2) CHECK (price >= 0),
+    version             INT NOT NULL DEFAULT 1,
     created_at          TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at          TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP
 );

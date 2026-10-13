@@ -17,6 +17,7 @@ public class PhysicalCopy {
     private CopyStatus status; // AVAILABLE, LOANED, RESERVED, LOST
     private LocalDate acquiredDate;
     private BigDecimal price;
+    private int version = 1;
     private Instant createdAt;
     private Instant updatedAt;
 
@@ -98,6 +99,9 @@ public class PhysicalCopy {
 
     public Instant getUpdatedAt() { return updatedAt; }
     public void setUpdatedAt(Instant updatedAt) { this.updatedAt = updatedAt; }
+
+    public int getVersion() { return version; }
+    public void setVersion(int version) { this.version = version; }
 
     public BookTitle getBookTitle() { return bookTitle; }
     public void setBookTitle(BookTitle bookTitle) { this.bookTitle = bookTitle; }

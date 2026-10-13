@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Library System - User Management Module</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-gradient: linear-gradient(135deg, #0f172a 0%, #1e1b4b 50%, #0f172a 100%);
+            --card-bg: rgba(30, 41, 59, 0.75);
+            --card-border: rgba(255, 255, 255, 0.12);
+            --primary: #6366f1;
+            --primary-hover: #4f46e5;
+            --success: #10b981;
+            --success-hover: #059669;
+            --warning: #f59e0b;
+            --warning-hover: #d97706;
+            --danger: #ef4444;
+            --danger-hover: #dc2626;
+            --info: #0ea5e9;
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+            --input-bg: rgba(15, 23, 42, 0.85);
+            --input-border: rgba(148, 163, 184, 0.25);
+            --radius-lg: 18px;
+            --radius-md: 10px;
+            --shadow-glow: 0 20px 40px -15px rgba(99, 102, 241, 0.3);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+        }
+
+        body {
+            background: var(--bg-gradient);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 32px 16px;
+            color: var(--text-main);
+        }
+
+        .container {
+            width: 100%;
+            max-width: 640px;
+            background: var(--card-bg);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid var(--card-border);
+            border-radius: var(--radius-lg);
+            padding: 40px;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5), var(--shadow-glow);
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 32px;
+        }
+
+        .badge {
+            display: inline-block;
+            background: rgba(99, 102, 241, 0.15);
+            color: #a5b4fc;
+            padding: 6px 14px;
+            border-radius: 9999px;
+            font-size: 0.82rem;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+            margin-bottom: 12px;
+            border: 1px solid rgba(99, 102, 241, 0.3);
+        }
+
+        h1 {
+            font-size: 1.85rem;
+            font-weight: 700;
+            color: #ffffff;
+            margin-bottom: 8px;
+        }
+
+        .subtitle {
+            color: var(--text-muted);
+            font-size: 0.95rem;
+        }
+
+        .form-group {
+            margin-bottom: 22px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-size: 0.88rem;
+            font-weight: 500;
+            color: #e2e8f0;
+        }
+
+        .label-hint {
+            color: var(--text-muted);
+            font-weight: 400;
+            font-size: 0.78rem;
+            margin-left: 6px;
+        }
+
+        input[type="text"],
+        input[type="email"],
+        input[type="number"] {
+            width: 100%;
+            padding: 13px 16px;
+            background: var(--input-bg);
+            border: 1px solid var(--input-border);
+            border-radius: var(--radius-md);
+            color: #ffffff;
+            font-size: 0.95rem;
+            transition: all 0.2s ease;
+        }
+
+        input:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.25);
+            background: rgba(15, 23, 42, 0.95);
+        }
+
+        .button-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 12px;
+            margin-top: 28px;
+        }
+
+        .btn {
+            padding: 13px 16px;
+            border: none;
+            border-radius: var(--radius-md);
+            font-size: 0.92rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            color: #ffffff;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+        }
+
+        .btn:active {
+            transform: translateY(0);
+        }
+
+        .btn-add {
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            box-shadow: 0 4px 14px rgba(16, 185, 129, 0.35);
+        }
+        .btn-add:hover { background: var(--success-hover); }
+
+        .btn-view {
+            background: linear-gradient(135deg, #0ea5e9 0%, #0284c7 100%);
+            box-shadow: 0 4px 14px rgba(14, 165, 233, 0.35);
+        }
+        .btn-view:hover { background: #0369a1; }
+
+        .btn-update {
+            background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+            box-shadow: 0 4px 14px rgba(245, 158, 11, 0.35);
+        }
+        .btn-update:hover { background: var(--warning-hover); }
+
+        .btn-delete {
+            background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+            box-shadow: 0 4px 14px rgba(239, 68, 68, 0.35);
+        }
+        .btn-delete:hover { background: var(--danger-hover); }
+
+        .footer-note {
+            margin-top: 28px;
+            padding-top: 20px;
+            border-top: 1px solid rgba(255, 255, 255, 0.08);
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.8rem;
+            color: var(--text-muted);
+        }
+
+        @media (max-width: 540px) {
+            .button-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            .container {
+                padding: 24px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <main class="container">
+        <header class="header">
+            <span class="badge">Library Management System</span>
+            <h1>User Management Module</h1>
+            <p class="subtitle">Execute live JDBC CRUD transactions against MySQL</p>
+        </header>
+
+        <!-- HTML Form submitting to UserServlet via HTTP POST -->
+        <form id="userForm" action="UserServlet" method="POST">
+            <div class="form-group">
+                <label for="userId">
+                    User ID
+                    <span class="label-hint">(Required for View, Update, Delete; Optional for Add if auto-incremented)</span>
+                </label>
+                <input type="number" id="userId" name="id" placeholder="e.g. 101" min="1">
+            </div>
+
+            <div class="form-group">
+                <label for="userName">
+                    Full Name
+                    <span class="label-hint">(Required for Add & Update)</span>
+                </label>
+                <input type="text" id="userName" name="name" placeholder="e.g. Alice Smith">
+            </div>
+
+            <div class="form-group">
+                <label for="userEmail">
+                    Email Address
+                    <span class="label-hint">(Required for Add & Update)</span>
+                </label>
+                <input type="email" id="userEmail" name="email" placeholder="e.g. alice.smith@example.com">
+            </div>
+
+            <!-- Four action buttons with name="action" -->
+            <div class="button-grid">
+                <button type="submit" name="action" value="Add" class="btn btn-add" id="btnAdd">
+                    ➕ Add
+                </button>
+                <button type="submit" name="action" value="View" class="btn btn-view" id="btnView">
+                    🔍 View
+                </button>
+                <button type="submit" name="action" value="Update" class="btn btn-update" id="btnUpdate">
+                    ✏️ Update
+                </button>
+                <button type="submit" name="action" value="Delete" class="btn btn-delete" id="btnDelete" onclick="return confirmDelete();">
+                    🗑️ Delete
+                </button>
+            </div>
+        </form>
+
+        <footer class="footer-note">
+            <span>Protocol: HTTP POST</span>
+            <span>Target: <code>/UserServlet</code></span>
+            <span>Engine: MySQL JDBC</span>
+        </footer>
+    </main>
+
+    <script>
+        function confirmDelete() {
+            const id = document.getElementById('userId').value.trim();
+            if (!id) {
+                alert('Please enter a User ID to delete.');
+                document.getElementById('userId').focus();
+                return false;
+            }
+            return confirm('Are you sure you want to permanently delete User ID: ' + id + '?');
+        }
+    </script>
+</body>
+</html>

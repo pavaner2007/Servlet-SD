@@ -1,0 +1,120 @@
+{
+  "description": "Production-ready Elasticsearch queries for Library Management System",
+  "queries": {
+    "1_fast_relevance_search": {
+      "comment": "Multi-match search with field boosting across title, author, and description",
+      "endpoint": "POST /library_catalog/_search",
+      "body": {
+        "query": {
+          "bool": {
+            "must": [
+              {
+                "multi_match": {
+                  "query": "Java patterns design",
+                  "fields": [
+                    "title^4",
+                    "authors^3",
+                    "subtitle^2",
+                    "description^1"
+                  ],
+                  "type": "best_fields",
+                  "fuzziness": "AUTO",
+                  "operator": "or"
+                }
+              }
+            ],
+            "filter": [
+              {
+                "term": {
+                  "is_available_for_checkout": true
+                }
+              }
+            ]
+          }
+        },
+        "highlight": {
+          "fields": {
+            "title": {},
+            "description": {}
+          }
+        },
+        "from": 0,
+        "size": 10
+      }
+    },
+    "2_autocomplete_search": {
+      "comment": "Search-as-you-type autocomplete query using edge-ngram subfields",
+      "endpoint": "POST /library_catalog/_search",
+      "body": {
+        "_source": ["book_id", "title", "authors", "cover_image_url"],
+        "query": {
+          "multi_match": {
+            "query": "clea",
+            "type": "bool_prefix",
+            "fields": [
+              "title.autocomplete",
+              "authors.autocomplete"
+            ]
+          }
+        },
+        "size": 5
+      }
+    },
+    "3_faceted_catalog_search_with_aggregations": {
+      "comment": "Catalogue search with faceted aggregations for genre, category, author, and publication year",
+      "endpoint": "POST /library_catalog/_search",
+      "body": {
+        "query": {
+          "match_all": {}
+        },
+        "aggs": {
+          "by_genre": {
+            "terms": {
+              "field": "genre",
+              "size": 10
+            }
+          },
+          "by_category": {
+            "terms": {
+              "field": "category",
+              "size": 10
+            }
+          },
+          "by_authors": {
+            "terms": {
+              "field": "authors.raw",
+              "size": 10
+            }
+          },
+          "publication_year_histogram": {
+            "histogram": {
+              "field": "publication_year",
+              "interval": 5
+            }
+          },
+          "availability_status": {
+            "terms": {
+              "field": "is_available_for_checkout"
+            }
+          }
+        },
+        "size": 0
+      }
+    },
+    "4_isbn_lookup": {
+      "comment": "Fast exact normalized ISBN search",
+      "endpoint": "POST /library_catalog/_search",
+      "body": {
+        "query": {
+          "bool": {
+            "should": [
+              { "term": { "isbn": "0134685997" } },
+              { "term": { "isbn13": "978-0134685991" } },
+              { "match": { "isbn.normalized": "0134685997" } }
+            ]
+          }
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,175 @@
+{
+  "settings": {
+    "number_of_shards": 2,
+    "number_of_replicas": 1,
+    "analysis": {
+      "filter": {
+        "edge_ngram_filter": {
+          "type": "edge_ngram",
+          "min_gram": 2,
+          "max_gram": 20
+        },
+        "english_stemmer": {
+          "type": "stemmer",
+          "language": "english"
+        },
+        "english_stop": {
+          "type": "stop",
+          "stopwords": "_english_"
+        }
+      },
+      "char_filter": {
+        "isbn_cleaner": {
+          "type": "pattern_replace",
+          "pattern": "[-\\s]",
+          "replacement": ""
+        }
+      },
+      "analyzer": {
+        "autocomplete_analyzer": {
+          "type": "custom",
+          "tokenizer": "standard",
+          "filter": [
+            "lowercase",
+            "edge_ngram_filter"
+          ]
+        },
+        "autocomplete_search": {
+          "type": "custom",
+          "tokenizer": "standard",
+          "filter": [
+            "lowercase"
+          ]
+        },
+        "catalog_text_analyzer": {
+          "type": "custom",
+          "tokenizer": "standard",
+          "filter": [
+            "lowercase",
+            "english_stop",
+            "english_stemmer"
+          ]
+        },
+        "isbn_analyzer": {
+          "type": "custom",
+          "char_filter": ["isbn_cleaner"],
+          "tokenizer": "keyword",
+          "filter": ["lowercase"]
+        }
+      }
+    }
+  },
+  "mappings": {
+    "dynamic": "strict",
+    "properties": {
+      "book_id": {
+        "type": "long"
+      },
+      "isbn": {
+        "type": "keyword",
+        "fields": {
+          "normalized": {
+            "type": "text",
+            "analyzer": "isbn_analyzer"
+          }
+        }
+      },
+      "isbn13": {
+        "type": "keyword",
+        "fields": {
+          "normalized": {
+            "type": "text",
+            "analyzer": "isbn_analyzer"
+          }
+        }
+      },
+      "title": {
+        "type": "text",
+        "analyzer": "catalog_text_analyzer",
+        "fields": {
+          "raw": {
+            "type": "keyword"
+          },
+          "autocomplete": {
+            "type": "text",
+            "analyzer": "autocomplete_analyzer",
+            "search_analyzer": "autocomplete_search"
+          }
+        }
+      },
+      "subtitle": {
+        "type": "text",
+        "analyzer": "catalog_text_analyzer"
+      },
+      "authors": {
+        "type": "text",
+        "analyzer": "catalog_text_analyzer",
+        "fields": {
+          "raw": {
+            "type": "keyword"
+          },
+          "autocomplete": {
+            "type": "text",
+            "analyzer": "autocomplete_analyzer",
+            "search_analyzer": "autocomplete_search"
+          }
+        }
+      },
+      "publisher": {
+        "type": "text",
+        "fields": {
+          "raw": {
+            "type": "keyword"
+          }
+        }
+      },
+      "publication_year": {
+        "type": "integer"
+      },
+      "edition": {
+        "type": "keyword"
+      },
+      "language": {
+        "type": "keyword"
+      },
+      "genre": {
+        "type": "keyword"
+      },
+      "category": {
+        "type": "keyword"
+      },
+      "classification_code": {
+        "type": "keyword"
+      },
+      "description": {
+        "type": "text",
+        "analyzer": "catalog_text_analyzer"
+      },
+      "total_physical_copies": {
+        "type": "integer"
+      },
+      "available_physical_copies": {
+        "type": "integer"
+      },
+      "total_digital_licences": {
+        "type": "integer"
+      },
+      "available_digital_licences": {
+        "type": "integer"
+      },
+      "is_available_for_checkout": {
+        "type": "boolean"
+      },
+      "tags": {
+        "type": "keyword"
+      },
+      "cover_image_url": {
+        "type": "keyword",
+        "index": false
+      },
+      "indexed_at": {
+        "type": "date"
+      }
+    }
+  }
+}
